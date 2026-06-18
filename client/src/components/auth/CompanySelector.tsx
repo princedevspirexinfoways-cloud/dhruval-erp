@@ -49,7 +49,7 @@ export function CompanySelector() {
 
   return (
     <div className="relative">
-      <Listbox value={currentCompany} onChange={handleCompanyChange} disabled={isLoading}>
+      <Listbox value={currentCompany ?? undefined} onChange={handleCompanyChange} disabled={isLoading}>
         <div className="relative">
           <Listbox.Button className="relative w-full cursor-pointer rounded-lg bg-white py-3 pl-4 pr-10 text-left border-2 border-sky-500 hover:border-black focus:outline-none focus:border-black sm:text-sm">
             <span className="flex items-center">
@@ -178,7 +178,7 @@ export function CompanySelectorCompact() {
   }
 
   return (
-    <Listbox value={currentCompany} onChange={handleCompanyChange} disabled={isLoading}>
+    <Listbox value={currentCompany ?? undefined} onChange={handleCompanyChange} disabled={isLoading}>
       <div className="relative">
         <Listbox.Button className="flex items-center text-sm text-black hover:text-black px-3 py-2 rounded-lg hover:bg-sky-50 border border-sky-500">
           <div className={`p-1 rounded mr-2 ${isSuperAdmin ? 'bg-sky-100' : 'bg-sky-100'}`}>

@@ -422,7 +422,7 @@ function PurchasePageContent() {
                                 cx="50%"
                                 cy="50%"
                                 labelLine={false}
-                                label={({ category, percentage }) => `${category?.replace('_', ' ') || 'Unknown'} ${percentage.toFixed(1)}%`}
+                                label={({ category, percentage }: any) => `${category?.replace('_', ' ') || 'Unknown'} ${percentage.toFixed(1)}%`}
                                 outerRadius={80}
                                 fill="#8884d8"
                                 dataKey="amount"

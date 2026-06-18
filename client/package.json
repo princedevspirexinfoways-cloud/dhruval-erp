@@ -40,7 +40,7 @@
     "jspdf": "^3.0.2",
     "jspdf-autotable": "^5.0.2",
     "lucide-react": "^0.526.0",
-    "next": "15.4.4",
+    "next": "15.5.19",
     "next-pwa": "^5.6.0",
     "nodemailer": "^7.0.5",
     "qrcode": "^1.5.4",
@@ -68,7 +68,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "15.4.4",
+    "eslint-config-next": "15.5.19",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

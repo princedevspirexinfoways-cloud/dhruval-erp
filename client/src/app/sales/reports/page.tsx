@@ -314,7 +314,7 @@ export default function SalesReportsPage() {
                           cx="50%"
                           cy="50%"
                           labelLine={false}
-                          label={({ customerName, percent }) => `${customerName} ${((percent ?? 0) * 100).toFixed(0)}%`}
+                          label={({ customerName, percent }: any) => `${customerName} ${((percent ?? 0) * 100).toFixed(0)}%`}
                           outerRadius={80}
                           fill="#8884d8"
                           dataKey="totalAmount"
@@ -396,7 +396,7 @@ export default function SalesReportsPage() {
                           cx="50%"
                           cy="50%"
                           labelLine={false}
-                          label={({ productName, percent }) => `${productName} ${((percent ?? 0) * 100).toFixed(0)}%`}
+                          label={({ productName, percent }: any) => `${productName} ${((percent ?? 0) * 100).toFixed(0)}%`}
                           outerRadius={80}
                           fill="#8884d8"
                           dataKey="totalAmount"
@@ -478,7 +478,7 @@ export default function SalesReportsPage() {
                           cx="50%"
                           cy="50%"
                           labelLine={false}
-                          label={({ salesPersonName, percent }) => `${salesPersonName} ${((percent ?? 0) * 100).toFixed(0)}%`}
+                          label={({ salesPersonName, percent }: any) => `${salesPersonName} ${((percent ?? 0) * 100).toFixed(0)}%`}
                           outerRadius={80}
                           fill="#8884d8"
                           dataKey="totalAmount"
