@@ -287,26 +287,24 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
       });
       
       // Super admin can access everything without company context
-      // Set company context based on request or use the first available company
-      if (targetCompanyId) {
-        // If a specific company is requested, use that
-        req.company = targetCompanyId;
+      // Set company context based on request, the first companyAccess entry,
+      // or fall back to the first active company in the system so that
+      // controllers reading req.user.companyId never see an empty/garbage value.
+      let resolvedCompanyId: string | undefined = targetCompanyId || user.companyAccess?.[0]?.companyId?.toString();
+
+      if (!resolvedCompanyId) {
+        const firstCompany = await Company.findOne({ isActive: true }).select('_id').sort({ createdAt: 1 });
+        resolvedCompanyId = firstCompany?._id?.toString();
+      }
+
+      if (resolvedCompanyId) {
+        req.company = resolvedCompanyId as any;
         req.companyAccess = {
           role: 'super_admin',
-          companyId: targetCompanyId,
+          companyId: resolvedCompanyId,
           isActive: true
         } as any;
-      } else if (user.companyAccess?.[0]?.companyId) {
-        // Use the first available company if no specific company requested
-        req.company = user.companyAccess[0].companyId;
-        req.companyAccess = user.companyAccess[0];
-      } else {
-        // Create a default company access for super admin
-        req.companyAccess = {
-          role: 'super_admin',
-          companyId: new Types.ObjectId(),
-          isActive: true
-        } as any;
+        (req as any).user.companyId = resolvedCompanyId;
       }
       // Continue to next middleware without requiring company ID
     } else if (!user.isSuperAdmin && !is2FARoute) {
