@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERP PWA Test Page</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0ea5e9">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f8fafc;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #0ea5e9;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background: #f8fafc;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        .success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+        .error {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+        .warning {
+            background: #fefce8;
+            color: #ca8a04;
+            border: 1px solid #fde68a;
+        }
+        button {
+            background: #0ea5e9;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0284c7;
+        }
+        button:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+        .instructions {
+            background: #e0f2fe;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #0ea5e9;
+        }
+        .device-tests {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .device-test {
+            padding: 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 ERP PWA Test Suite</h1>
+        
+        <div class="instructions">
+            <h3>📱 Testing Instructions</h3>
+            <ol>
+                <li><strong>Desktop (Chrome/Edge):</strong> Look for install icon in address bar</li>
+                <li><strong>Mobile (Android):</strong> Use "Add to Home Screen" from browser menu</li>
+                <li><strong>iOS Safari:</strong> Tap Share → "Add to Home Screen"</li>
+                <li><strong>Production Test:</strong> Deploy and test on HTTPS domain</li>
+            </ol>
+        </div>
+
+        <div class="test-section">
+            <h3>🔧 PWA Feature Tests</h3>
+            <div id="testResults"></div>
+            <button onclick="runAllTests()">Run All Tests</button>
+            <button onclick="testInstallPrompt()">Test Install Prompt</button>
+            <button onclick="testNotifications()">Test Notifications</button>
+            <button onclick="testOffline()">Test Offline Mode</button>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 PWA Status & Install</h3>
+            <button onclick="checkPWAStatus()">Check PWA Status</button>
+            <button onclick="triggerInstallPrompt()">Trigger Install Prompt</button>
+            <button onclick="testOfflineCapability()">Test Offline Mode</button>
+            <div id="pwaStatus"></div>
+        </div>
+
+        <div class="device-tests">
+            <div class="device-test">
+                <h4>🖥️ Desktop</h4>
+                <div id="desktopStatus">Testing...</div>
+            </div>
+            <div class="device-test">
+                <h4>📱 Mobile</h4>
+                <div id="mobileStatus">Testing...</div>
+            </div>
+            <div class="device-test">
+                <h4>🍎 iOS</h4>
+                <div id="iosStatus">Testing...</div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔑 Authentication</h3>
+            <div id="authStatus"></div>
+            <input type="text" id="tokenInput" placeholder="Enter auth token (optional)" style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ccc; border-radius: 4px;">
+            <button onclick="setAuthToken()">Set Token</button>
+            <button onclick="clearAuthToken()">Clear Token</button>
+        </div>
+
+        <div class="test-section">
+            <h3>🔗 Quick Links</h3>
+            <button onclick="window.open('/dashboard', '_blank')">Open Dashboard</button>
+            <button onclick="window.open('/manifest.json', '_blank')">View Manifest</button>
+            <button onclick="window.open('/icons/create-basic-icons.html', '_blank')">Download Icons</button>
+            <button onclick="window.open('https://server.dhruvalexim.com/api/v1/dashboard/stats', '_blank')">Test API Direct</button>
+        </div>
+    </div>
+
+    <script>
+        let deferredPrompt;
+        
+        // Test results container
+        const testResults = document.getElementById('testResults');
+        const pwaStatus = document.getElementById('pwaStatus');
+        
+        // Device status containers
+        const desktopStatus = document.getElementById('desktopStatus');
+        const mobileStatus = document.getElementById('mobileStatus');
+        const iosStatus = document.getElementById('iosStatus');
+
+        function addTestResult(message, type = 'success') {
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.textContent = message;
+            testResults.appendChild(div);
+        }
+
+        function updateStatus(container, message, type = 'success') {
+            container.innerHTML = `<div class="test-result ${type}">${message}</div>`;
+        }
+
+        // Check PWA installation status
+        function checkPWAStatus() {
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+            const isIOSStandalone = window.navigator.standalone === true;
+            const isInstalled = isStandalone || isIOSStandalone;
+
+            let statusMessage = '';
+            if (isInstalled) {
+                statusMessage = '✅ PWA is installed and running in standalone mode';
+                updateStatus(pwaStatus, statusMessage, 'success');
+            } else {
+                statusMessage = '📱 PWA is running in browser mode';
+                updateStatus(pwaStatus, statusMessage, 'warning');
+
+                // Check if install prompt is available
+                if (deferredPrompt) {
+                    statusMessage += '<br>🎯 Install prompt is available!';
+                } else if (window.installPWA) {
+                    statusMessage += '<br>🔧 Manual install function available';
+                } else {
+                    statusMessage += '<br>⚠️ Install prompt not available';
+                }
+                updateStatus(pwaStatus, statusMessage, 'warning');
+            }
+        }
+
+        // Trigger install prompt
+        function triggerInstallPrompt() {
+            if (window.installPWA) {
+                // Use the global install function from PWAManager
+                window.installPWA();
+                addTestResult('🎯 Install prompt triggered via PWAManager', 'success');
+            } else if (deferredPrompt) {
+                // Use the deferred prompt directly
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    addTestResult(`🎯 Install prompt result: ${choiceResult.outcome}`, 'info');
+                    deferredPrompt = null;
+                });
+            } else {
+                // Show manual instructions
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+                if (isIOS) {
+                    addTestResult('📱 iOS: Tap Share → Add to Home Screen', 'warning');
+                } else {
+                    addTestResult('⚠️ Install prompt not available in this browser', 'error');
+                }
+            }
+        }
+
+        // Test offline capability
+        function testOfflineCapability() {
+            addTestResult('🔄 Testing offline capability...', 'warning');
+
+            // Check service worker
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    if (registrations.length > 0) {
+                        addTestResult('✅ Service worker registered for offline support', 'success');
+
+                        // Test cache
+                        if ('caches' in window) {
+                            caches.keys().then(cacheNames => {
+                                addTestResult(`📦 ${cacheNames.length} cache(s) available: ${cacheNames.join(', ')}`, 'success');
+                            });
+                        }
+                    } else {
+                        addTestResult('❌ No service worker registered', 'error');
+                    }
+                });
+            } else {
+                addTestResult('❌ Service workers not supported', 'error');
+            }
+
+            // Test offline detection
+            if (navigator.onLine) {
+                addTestResult('🌐 Currently online', 'success');
+            } else {
+                addTestResult('📴 Currently offline', 'warning');
+            }
+        }
+
+        // Check device-specific features
+        function checkDeviceFeatures() {
+            // Desktop check
+            if (window.innerWidth > 768) {
+                updateStatus(desktopStatus, '✅ Desktop environment detected', 'success');
+            } else {
+                updateStatus(desktopStatus, '📱 Mobile environment detected', 'warning');
+            }
+            
+            // Mobile check
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            if (isMobile) {
+                updateStatus(mobileStatus, '✅ Mobile device detected', 'success');
+            } else {
+                updateStatus(mobileStatus, '🖥️ Desktop device detected', 'warning');
+            }
+            
+            // iOS check
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+            if (isIOS) {
+                updateStatus(iosStatus, '✅ iOS device detected', 'success');
+            } else {
+                updateStatus(iosStatus, '🤖 Non-iOS device detected', 'warning');
+            }
+        }
+
+        // Test service worker
+        function testServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                addTestResult('✅ Service Worker supported', 'success');
+
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    if (registrations.length > 0) {
+                        addTestResult('✅ Service Worker registered', 'success');
+                        registrations.forEach((reg, index) => {
+                            addTestResult(`📍 SW ${index + 1}: ${reg.scope}`, 'success');
+                            addTestResult(`📍 SW ${index + 1} State: ${reg.active?.state || 'unknown'}`, 'info');
+                        });
+
+                        // Test if SW is controlling the page
+                        if (navigator.serviceWorker.controller) {
+                            addTestResult('✅ Service Worker is controlling this page', 'success');
+                        } else {
+                            addTestResult('⚠️ Service Worker not controlling this page yet', 'warning');
+                        }
+                    } else {
+                        addTestResult('⚠️ Service Worker not registered', 'warning');
+                        // Try to register manually
+                        registerServiceWorkerManually();
+                    }
+                }).catch(error => {
+                    addTestResult('❌ Service Worker check failed: ' + error.message, 'error');
+                });
+            } else {
+                addTestResult('❌ Service Worker not supported', 'error');
+            }
+        }
+
+        // Manual service worker registration
+        function registerServiceWorkerManually() {
+            if ('serviceWorker' in navigator) {
+                addTestResult('🔄 Attempting manual SW registration...', 'warning');
+                navigator.serviceWorker.register('/sw.js', {
+                    scope: '/',
+                    updateViaCache: 'none'
+                }).then(registration => {
+                    addTestResult('✅ Service Worker registered manually', 'success');
+                    addTestResult(`📍 Manual SW scope: ${registration.scope}`, 'success');
+                }).catch(error => {
+                    addTestResult('❌ Manual SW registration failed: ' + error.message, 'error');
+                });
+            }
+        }
+
+        // Test manifest
+        function testManifest() {
+            fetch('/manifest.json')
+                .then(response => response.json())
+                .then(manifest => {
+                    addTestResult('✅ Manifest loaded successfully', 'success');
+                    addTestResult(`📱 App name: ${manifest.name}`, 'success');
+                    addTestResult(`🎨 Theme color: ${manifest.theme_color}`, 'success');
+                })
+                .catch(() => {
+                    addTestResult('❌ Failed to load manifest', 'error');
+                });
+        }
+
+        // Test install prompt
+        function testInstallPrompt() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        addTestResult('✅ User accepted install prompt', 'success');
+                    } else {
+                        addTestResult('⚠️ User dismissed install prompt', 'warning');
+                    }
+                    deferredPrompt = null;
+                });
+            } else {
+                addTestResult('⚠️ Install prompt not available', 'warning');
+            }
+        }
+
+        // Test notifications
+        function testNotifications() {
+            if ('Notification' in window) {
+                if (Notification.permission === 'granted') {
+                    new Notification('ERP PWA Test', {
+                        body: 'Notifications are working!',
+                        icon: '/icons/icon-192x192.png'
+                    });
+                    addTestResult('✅ Notification sent', 'success');
+                } else if (Notification.permission !== 'denied') {
+                    Notification.requestPermission().then(permission => {
+                        if (permission === 'granted') {
+                            new Notification('ERP PWA Test', {
+                                body: 'Notifications are now enabled!',
+                                icon: '/icons/icon-192x192.png'
+                            });
+                            addTestResult('✅ Notification permission granted', 'success');
+                        } else {
+                            addTestResult('⚠️ Notification permission denied', 'warning');
+                        }
+                    });
+                } else {
+                    addTestResult('❌ Notifications blocked', 'error');
+                }
+            } else {
+                addTestResult('❌ Notifications not supported', 'error');
+            }
+        }
+
+        // Test offline functionality
+        function testOffline() {
+            const SERVER_BASE_URL = 'https://server.dhruvalexim.com';
+            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+
+            if (navigator.onLine) {
+                addTestResult('🌐 Currently online', 'success');
+
+                // Test API caching with real endpoints
+                const testEndpoints = [
+                    `${SERVER_BASE_URL}/api/v1/dashboard/stats`,
+                    `${SERVER_BASE_URL}/api/v1/inventory`,
+                    `${SERVER_BASE_URL}/api/v1/sales/stats`,
+                    `${SERVER_BASE_URL}/api/v1/purchase/stats`
+                ];
+
+                testEndpoints.forEach(endpoint => {
+                    fetch(endpoint, {
+                        cache: 'force-cache',
+                        mode: 'cors',
+                        credentials: 'include',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            const cacheStatus = response.headers.get('X-Served-By') === 'ServiceWorker-Cache' ? '(from cache)' : '(from network)';
+                            addTestResult(`✅ API accessible: ${endpoint.split('/').pop()} ${cacheStatus}`, 'success');
+                        } else {
+                            addTestResult(`⚠️ API endpoint not cached: ${endpoint.split('/').pop()}`, 'warning');
+                        }
+                    })
+                    .catch(() => addTestResult(`❌ API endpoint failed: ${endpoint.split('/').pop()}`, 'error'));
+                });
+
+                // Test manifest cache
+                fetch('/manifest.json', { cache: 'force-cache' })
+                    .then(() => addTestResult('✅ Manifest cache working', 'success'))
+                    .catch(() => addTestResult('⚠️ Manifest cache may not be working', 'warning'));
+            } else {
+                addTestResult('📴 Currently offline', 'warning');
+                addTestResult('🔄 Testing offline functionality...', 'warning');
+
+                // Test if cached data is available offline
+                fetch(`${SERVER_BASE_URL}/api/v1/dashboard/stats`, {
+                    mode: 'cors',
+                    credentials: 'include'
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            const isFromCache = response.headers.get('X-Served-By') === 'ServiceWorker-Cache';
+                            if (isFromCache) {
+                                addTestResult('✅ Offline data available from cache', 'success');
+                            } else {
+                                addTestResult('⚠️ Limited offline functionality', 'warning');
+                            }
+                        } else {
+                            addTestResult('⚠️ Limited offline functionality', 'warning');
+                        }
+                    })
+                    .catch(() => addTestResult('❌ No offline data available', 'error'));
+            }
+        }
+
+        // Test API data structure
+        function testAPIData() {
+            addTestResult('🔍 Testing API data structure...', 'warning');
+
+            const SERVER_BASE_URL = 'https://server.dhruvalexim.com';
+            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+
+            // Test dashboard stats API
+            fetch(`${SERVER_BASE_URL}/api/v1/dashboard/stats`, {
+                mode: 'cors',
+                credentials: 'include',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            })
+            .then(data => {
+                if (data.success && data.data) {
+                    addTestResult('✅ Dashboard API structure valid', 'success');
+                    addTestResult(`📊 Total Orders: ${data.data.totalOrders || 'N/A'}`, 'success');
+                    addTestResult(`💰 Total Revenue: ${data.data.totalRevenue || 'N/A'}`, 'success');
+                } else {
+                    addTestResult('⚠️ Dashboard API structure unexpected', 'warning');
+                }
+            })
+            .catch(error => {
+                addTestResult(`❌ Dashboard API not accessible: ${error.message}`, 'error');
+                if (!token) {
+                    addTestResult('💡 Tip: Login first to test authenticated APIs', 'warning');
+                }
+            });
+
+            // Test inventory API
+            fetch(`${SERVER_BASE_URL}/api/v1/inventory?limit=1`, {
+                mode: 'cors',
+                credentials: 'include',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            })
+            .then(data => {
+                if (data.success && data.data) {
+                    addTestResult('✅ Inventory API structure valid', 'success');
+                    addTestResult(`📦 Inventory items available: ${data.data.length}`, 'success');
+                } else {
+                    addTestResult('⚠️ Inventory API structure unexpected', 'warning');
+                }
+            })
+            .catch(error => {
+                addTestResult(`❌ Inventory API not accessible: ${error.message}`, 'error');
+            });
+        }
+
+        // Run all tests
+        function runAllTests() {
+            testResults.innerHTML = '';
+            addTestResult('🧪 Running PWA tests...', 'warning');
+
+            testServiceWorker();
+            testManifest();
+            checkPWAStatus();
+            checkDeviceFeatures();
+            testAPIData();
+
+            // Test icons
+            const testIcon = new Image();
+            testIcon.onload = () => addTestResult('✅ Icons loading correctly', 'success');
+            testIcon.onerror = () => addTestResult('❌ Icon loading failed', 'error');
+            testIcon.src = '/icons/icon-192x192.png';
+        }
+
+        // Event listeners
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            addTestResult('✅ Install prompt available', 'success');
+        });
+
+        window.addEventListener('appinstalled', () => {
+            addTestResult('✅ PWA installed successfully', 'success');
+            deferredPrompt = null;
+        });
+
+        // Authentication helpers
+        function setAuthToken() {
+            const token = document.getElementById('tokenInput').value.trim();
+            if (token) {
+                localStorage.setItem('token', token);
+                updateAuthStatus();
+                addTestResult('✅ Auth token set', 'success');
+            } else {
+                addTestResult('⚠️ Please enter a valid token', 'warning');
+            }
+        }
+
+        function clearAuthToken() {
+            localStorage.removeItem('token');
+            sessionStorage.removeItem('token');
+            document.getElementById('tokenInput').value = '';
+            updateAuthStatus();
+            addTestResult('🗑️ Auth token cleared', 'warning');
+        }
+
+        function updateAuthStatus() {
+            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+            const authStatus = document.getElementById('authStatus');
+            if (token) {
+                authStatus.innerHTML = '<div class="test-result success">🔐 Authenticated (token available)</div>';
+            } else {
+                authStatus.innerHTML = '<div class="test-result warning">🔓 Not authenticated (no token)</div>';
+            }
+        }
+
+        // Initialize tests on load
+        window.addEventListener('load', () => {
+            checkPWAStatus();
+            checkDeviceFeatures();
+            updateAuthStatus();
+        });
+    </script>
+</body>
+</html>

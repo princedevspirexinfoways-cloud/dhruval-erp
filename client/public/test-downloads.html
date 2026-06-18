@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download Test - ERP System</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #6c757d; cursor: not-allowed; }
+        .code {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            border: 1px solid #e9ecef;
+            font-size: 12px;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📥 Download Test Suite</h1>
+        <p>Test all download functionality in production environment.</p>
+
+        <div id="supportInfo" class="test-section">
+            <h3>🔍 Browser Support Check</h3>
+            <div id="supportResults"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📄 Blob Downloads</h3>
+            <div class="grid">
+                <button onclick="testCSVDownload()">Test CSV Download</button>
+                <button onclick="testJSONDownload()">Test JSON Download</button>
+                <button onclick="testTextDownload()">Test Text Download</button>
+                <button onclick="testBackupCodes()">Test Backup Codes</button>
+            </div>
+            <div id="blobResults"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🌐 API Downloads</h3>
+            <input type="text" id="tokenInput" placeholder="Enter auth token (optional)">
+            <div class="grid">
+                <button onclick="testPurchaseExport()">Test Purchase Export</button>
+                <button onclick="testSalesExport()">Test Sales Export</button>
+                <button onclick="testInventoryExport()">Test Inventory Export</button>
+                <button onclick="testReportExport()">Test Report Export</button>
+            </div>
+            <div id="apiResults"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔗 URL Downloads</h3>
+            <input type="text" id="urlInput" placeholder="Enter download URL to test">
+            <div class="grid">
+                <button onclick="testDirectURL()">Test Direct Download</button>
+                <button onclick="testNewTabURL()">Test New Tab</button>
+                <button onclick="testFallbackURL()">Test with Fallback</button>
+            </div>
+            <div id="urlResults"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📱 PWA Context</h3>
+            <div class="grid">
+                <button onclick="checkPWAMode()">Check PWA Mode</button>
+                <button onclick="testInStandalone()">Test in Standalone</button>
+                <button onclick="checkServiceWorker()">Check Service Worker</button>
+            </div>
+            <div id="pwaResults"></div>
+        </div>
+
+        <div id="testLog" class="test-section">
+            <h3>📋 Test Log</h3>
+            <div id="logContent"></div>
+        </div>
+    </div>
+
+    <script>
+        const SERVER_BASE_URL = 'https://server.dhruvalexim.com';
+        let testLog = [];
+
+        function addLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            testLog.push({ timestamp, message, type });
+            updateLogDisplay();
+        }
+
+        function updateLogDisplay() {
+            const logContent = document.getElementById('logContent');
+            const recentLogs = testLog.slice(-20); // Show last 20 logs
+            logContent.innerHTML = recentLogs.map(log => 
+                `<div class="status ${log.type}">${log.timestamp}: ${log.message}</div>`
+            ).join('');
+        }
+
+        // Enhanced download utilities (simplified version)
+        function downloadBlob(blob, filename) {
+            try {
+                if (navigator.msSaveBlob) {
+                    navigator.msSaveBlob(blob, filename);
+                    return true;
+                }
+
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = filename;
+                link.style.display = 'none';
+                
+                document.body.appendChild(link);
+                link.click();
+                
+                setTimeout(() => {
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(url);
+                }, 100);
+                
+                return true;
+            } catch (error) {
+                console.error('Download failed:', error);
+                return false;
+            }
+        }
+
+        function downloadFromUrl(url, filename) {
+            try {
+                const link = document.createElement('a');
+                link.href = url;
+                if (filename) link.download = filename;
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+                
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                return true;
+            } catch (error) {
+                console.error('URL download failed:', error);
+                return false;
+            }
+        }
+
+        // Browser support check
+        function checkBrowserSupport() {
+            const support = {
+                blob: typeof Blob !== 'undefined',
+                url: typeof URL !== 'undefined' && typeof URL.createObjectURL !== 'undefined',
+                download: 'download' in document.createElement('a'),
+                msSaveBlob: typeof navigator.msSaveBlob !== 'undefined',
+                clipboard: navigator.clipboard && navigator.clipboard.writeText,
+                serviceWorker: 'serviceWorker' in navigator
+            };
+
+            const supportResults = document.getElementById('supportResults');
+            supportResults.innerHTML = `<div class="code">${JSON.stringify(support, null, 2)}</div>`;
+            
+            const overall = support.blob && (support.url || support.msSaveBlob);
+            addLog(`Browser support check: ${overall ? 'SUPPORTED' : 'LIMITED'}`, overall ? 'success' : 'warning');
+        }
+
+        // Test blob downloads
+        function testCSVDownload() {
+            const csvData = 'Name,Email,Phone\nJohn Doe,john@example.com,123-456-7890\nJane Smith,jane@example.com,098-765-4321';
+            const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+            
+            const success = downloadBlob(blob, 'test-export.csv');
+            addLog(`CSV download: ${success ? 'SUCCESS' : 'FAILED'}`, success ? 'success' : 'error');
+        }
+
+        function testJSONDownload() {
+            const jsonData = { test: true, timestamp: new Date().toISOString(), data: [1, 2, 3] };
+            const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: 'application/json;charset=utf-8;' });
+            
+            const success = downloadBlob(blob, 'test-data.json');
+            addLog(`JSON download: ${success ? 'SUCCESS' : 'FAILED'}`, success ? 'success' : 'error');
+        }
+
+        function testTextDownload() {
+            const textData = 'This is a test file.\nGenerated at: ' + new Date().toISOString();
+            const blob = new Blob([textData], { type: 'text/plain;charset=utf-8;' });
+            
+            const success = downloadBlob(blob, 'test-file.txt');
+            addLog(`Text download: ${success ? 'SUCCESS' : 'FAILED'}`, success ? 'success' : 'error');
+        }
+
+        function testBackupCodes() {
+            const codes = ['ABC123', 'DEF456', 'GHI789', 'JKL012', 'MNO345'];
+            const content = codes.join('\n');
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8;' });
+            
+            const success = downloadBlob(blob, 'backup-codes.txt');
+            addLog(`Backup codes download: ${success ? 'SUCCESS' : 'FAILED'}`, success ? 'success' : 'error');
+        }
+
+        // Test API downloads
+        async function testPurchaseExport() {
+            const token = document.getElementById('tokenInput').value || localStorage.getItem('token');
+            if (!token) {
+                addLog('Purchase export: No token provided', 'warning');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${SERVER_BASE_URL}/api/v1/purchase/export`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ format: 'csv' })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.data?.downloadUrl) {
+                        const success = downloadFromUrl(result.data.downloadUrl);
+                        addLog(`Purchase export: ${success ? 'SUCCESS' : 'FAILED'}`, success ? 'success' : 'error');
+                    } else {
+                        addLog('Purchase export: No download URL in response', 'error');
+                    }
+                } else {
+                    addLog(`Purchase export: API error ${response.status}`, 'error');
+                }
+            } catch (error) {
+                addLog(`Purchase export: ${error.message}`, 'error');
+            }
+        }
+
+        async function testSalesExport() {
+            const token = document.getElementById('tokenInput').value || localStorage.getItem('token');
+            if (!token) {
+                addLog('Sales export: No token provided', 'warning');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${SERVER_BASE_URL}/api/v1/sales/export`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ format: 'csv' })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.data?.downloadUrl) {
+                        const success = downloadFromUrl(result.data.downloadUrl);
+                        addLog(`Sales export: ${success ? 'SUCCESS' : 'FAILED'}`, success ? 'success' : 'error');
+                    } else {
+                        addLog('Sales export: No download URL in response', 'error');
+                    }
+                } else {
+                    addLog(`Sales export: API error ${response.status}`, 'error');
+                }
+            } catch (error) {
+                addLog(`Sales export: ${error.message}`, 'error');
+            }
+        }
+
+        function testInventoryExport() {
+            addLog('Inventory export: Not implemented yet', 'warning');
+        }
+
+        function testReportExport() {
+            addLog('Report export: Not implemented yet', 'warning');
+        }
+
+        // Test URL downloads
+        function testDirectURL() {
+            const url = document.getElementById('urlInput').value;
+            if (!url) {
+                addLog('Direct URL: No URL provided', 'warning');
+                return;
+            }
+
+            const success = downloadFromUrl(url);
+            addLog(`Direct URL download: ${success ? 'SUCCESS' : 'FAILED'}`, success ? 'success' : 'error');
+        }
+
+        function testNewTabURL() {
+            const url = document.getElementById('urlInput').value;
+            if (!url) {
+                addLog('New tab URL: No URL provided', 'warning');
+                return;
+            }
+
+            try {
+                const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
+                const success = !!newWindow;
+                addLog(`New tab URL: ${success ? 'SUCCESS' : 'BLOCKED'}`, success ? 'success' : 'error');
+            } catch (error) {
+                addLog(`New tab URL: ${error.message}`, 'error');
+            }
+        }
+
+        async function testFallbackURL() {
+            const url = document.getElementById('urlInput').value;
+            if (!url) {
+                addLog('Fallback URL: No URL provided', 'warning');
+                return;
+            }
+
+            // Try direct download first
+            let success = downloadFromUrl(url);
+            if (success) {
+                addLog('Fallback URL: Direct download succeeded', 'success');
+                return;
+            }
+
+            // Try new tab
+            try {
+                const newWindow = window.open(url, '_blank');
+                if (newWindow) {
+                    addLog('Fallback URL: New tab succeeded', 'success');
+                    return;
+                }
+            } catch (error) {
+                // Continue to clipboard fallback
+            }
+
+            // Try clipboard
+            try {
+                await navigator.clipboard.writeText(url);
+                addLog('Fallback URL: Copied to clipboard', 'warning');
+            } catch (error) {
+                addLog('Fallback URL: All methods failed', 'error');
+            }
+        }
+
+        // PWA tests
+        function checkPWAMode() {
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+                               window.navigator.standalone ||
+                               document.referrer.includes('android-app://');
+            
+            addLog(`PWA Mode: ${isStandalone ? 'STANDALONE' : 'BROWSER'}`, 'info');
+        }
+
+        function testInStandalone() {
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+            if (isStandalone) {
+                testCSVDownload();
+                addLog('Standalone test: CSV download attempted', 'info');
+            } else {
+                addLog('Standalone test: Not in standalone mode', 'warning');
+            }
+        }
+
+        async function checkServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                try {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    addLog(`Service Worker: ${registrations.length} registration(s) found`, 'info');
+                } catch (error) {
+                    addLog(`Service Worker: Error checking - ${error.message}`, 'error');
+                }
+            } else {
+                addLog('Service Worker: Not supported', 'warning');
+            }
+        }
+
+        // Initialize
+        window.addEventListener('load', () => {
+            checkBrowserSupport();
+            addLog('Download test suite loaded', 'success');
+        });
+    </script>
+</body>
+</html>

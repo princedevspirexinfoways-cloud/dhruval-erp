@@ -1,0 +1,54 @@
+@media print {
+  /* Hide navigation and non-essential elements */
+  .no-print,
+  nav,
+  .sidebar,
+  button,
+  .print-hide {
+    display: none !important;
+  }
+
+  /* Ensure proper page breaks */
+  .print-page-break {
+    page-break-before: always;
+  }
+
+  /* Optimize layout for print */
+  .print-container {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 20px !important;
+  }
+
+  /* Ensure text is readable */
+  body {
+    font-size: 12pt !important;
+    line-height: 1.4 !important;
+    color: black !important;
+    background: white !important;
+  }
+
+  /* Table styling for print */
+  table {
+    border-collapse: collapse !important;
+    width: 100% !important;
+  }
+
+  th, td {
+    border: 1px solid #000 !important;
+    padding: 8px !important;
+    text-align: left !important;
+  }
+
+  /* Header styling */
+  h1, h2, h3 {
+    color: black !important;
+    page-break-after: avoid !important;
+  }
+
+  /* Avoid breaking inside elements */
+  .print-keep-together {
+    page-break-inside: avoid !important;
+  }
+}

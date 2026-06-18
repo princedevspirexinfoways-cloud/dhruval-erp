@@ -1,0 +1,13 @@
+# API Configuration - All APIs use v1
+NEXT_PUBLIC_API_URL=http://localhost:4000/api/v1
+
+# Application Configuration
+NEXT_PUBLIC_APP_NAME=Factory ERP
+NEXT_PUBLIC_APP_VERSION=2.0.0
+
+# Environment
+NODE_ENV=development
+
+NEXT_PUBLIC_MAX_FILE_SIZE=10485760
+NEXT_PUBLIC_ALLOWED_FILE_TYPES=image/jpeg,image/png,image/gif,application/pdf,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel
+NEXT_PUBLIC_S3_BASE_URL=https://usc1.contabostorage.com/a515fceddec13b83b773ba47cb024c02:erp

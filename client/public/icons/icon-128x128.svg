@@ -1,0 +1,30 @@
+<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gradient-128" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0ea5e9;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0284c7;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="shine-128" x1="0%" y1="0%" x2="100%" y2="33%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.3" />
+      <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background with rounded corners -->
+  <rect x="2" y="2" width="124" height="124" rx="19.2" ry="19.2" fill="url(#gradient-128)" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+
+  <!-- Main ERP text -->
+  <text x="64" y="57.6" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="25.6" font-weight="bold" text-anchor="middle" fill="white">ERP</text>
+
+  <!-- Subtitle -->
+  <text x="64" y="80" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10.666666666666666" text-anchor="middle" fill="rgba(255,255,255,0.9)">SYSTEM</text>
+
+  <!-- Geometric elements -->
+  <rect x="24" y="21.333333333333332" width="16" height="4" fill="rgba(255,255,255,0.6)"/>
+  <rect x="88" y="21.333333333333332" width="16" height="4" fill="rgba(255,255,255,0.6)"/>
+  <rect x="24" y="106.66666666666667" width="16" height="4" fill="rgba(255,255,255,0.6)"/>
+  <rect x="88" y="106.66666666666667" width="16" height="4" fill="rgba(255,255,255,0.6)"/>
+
+  <!-- Shine effect -->
+  <rect x="2" y="2" width="124" height="42.666666666666664" rx="19.2" ry="19.2" fill="url(#shine-128)"/>
+</svg>

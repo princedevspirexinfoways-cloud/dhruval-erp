@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate PWA Icons from Logo</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .upload-area {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+        .upload-area:hover {
+            border-color: #007bff;
+        }
+        .upload-area.dragover {
+            border-color: #007bff;
+            background: #f8f9fa;
+        }
+        #fileInput {
+            display: none;
+        }
+        .preview {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .preview img {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .generate-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            margin: 20px 0;
+        }
+        .generate-btn:hover {
+            background: #0056b3;
+        }
+        .generate-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .icons-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+        .icon-item {
+            text-align: center;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        .icon-item img {
+            width: 64px;
+            height: 64px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+        .icon-item .size {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .download-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .download-btn:hover {
+            background: #1e7e34;
+        }
+        .download-all {
+            background: #17a2b8;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 20px 0;
+        }
+        .download-all:hover {
+            background: #138496;
+        }
+        .instructions {
+            background: #e9ecef;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+        .instructions h3 {
+            margin-top: 0;
+            color: #495057;
+        }
+        .instructions ol {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .instructions li {
+            margin-bottom: 8px;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 PWA Icon Generator</h1>
+        
+        <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+            <p>📁 Click here or drag and drop your logo image</p>
+            <p style="color: #666; font-size: 14px;">Supports PNG, JPG, SVG (recommended: square image, min 512x512px)</p>
+        </div>
+        
+        <input type="file" id="fileInput" accept="image/*">
+        
+        <div class="preview" id="preview" style="display: none;">
+            <h3>Preview:</h3>
+            <img id="previewImg" alt="Logo preview">
+        </div>
+        
+        <button class="generate-btn" id="generateBtn" disabled>🚀 Generate All PWA Icons</button>
+        
+        <div id="iconsContainer" style="display: none;">
+            <h3>Generated Icons:</h3>
+            <button class="download-all" id="downloadAllBtn">📦 Download All Icons as ZIP</button>
+            <div class="icons-grid" id="iconsGrid"></div>
+        </div>
+        
+        <div class="instructions">
+            <h3>📋 Instructions:</h3>
+            <ol>
+                <li>Upload your logo image (preferably square, minimum 512x512px)</li>
+                <li>Click "Generate All PWA Icons" to create all required sizes</li>
+                <li>Download individual icons or all as a ZIP file</li>
+                <li>Replace the existing icons in your <code>/public/icons/</code> folder</li>
+                <li>Update your favicon files in <code>/public/</code> folder</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const uploadArea = document.querySelector('.upload-area');
+        const preview = document.getElementById('preview');
+        const previewImg = document.getElementById('previewImg');
+        const generateBtn = document.getElementById('generateBtn');
+        const iconsContainer = document.getElementById('iconsContainer');
+        const iconsGrid = document.getElementById('iconsGrid');
+        const downloadAllBtn = document.getElementById('downloadAllBtn');
+        
+        let originalImage = null;
+        let generatedIcons = [];
+        
+        // Icon sizes needed for PWA
+        const iconSizes = [
+            { size: 16, name: 'favicon-16x16.png', type: 'favicon' },
+            { size: 32, name: 'favicon-32x32.png', type: 'favicon' },
+            { size: 48, name: 'favicon-48x48.png', type: 'favicon' },
+            { size: 57, name: 'apple-touch-icon-57x57.png', type: 'apple' },
+            { size: 60, name: 'apple-touch-icon-60x60.png', type: 'apple' },
+            { size: 72, name: 'apple-touch-icon-72x72.png', type: 'apple' },
+            { size: 76, name: 'apple-touch-icon-76x76.png', type: 'apple' },
+            { size: 96, name: 'icon-96x96.png', type: 'pwa' },
+            { size: 114, name: 'apple-touch-icon-114x114.png', type: 'apple' },
+            { size: 120, name: 'apple-touch-icon-120x120.png', type: 'apple' },
+            { size: 128, name: 'icon-128x128.png', type: 'pwa' },
+            { size: 144, name: 'apple-touch-icon-144x144.png', type: 'apple' },
+            { size: 152, name: 'apple-touch-icon-152x152.png', type: 'apple' },
+            { size: 180, name: 'apple-touch-icon-180x180.png', type: 'apple' },
+            { size: 192, name: 'icon-192x192.png', type: 'pwa' },
+            { size: 384, name: 'icon-384x384.png', type: 'pwa' },
+            { size: 512, name: 'icon-512x512.png', type: 'pwa' }
+        ];
+        
+        // Drag and drop handlers
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+        
+        function handleFile(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('Please select an image file');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    originalImage = img;
+                    previewImg.src = e.target.result;
+                    preview.style.display = 'block';
+                    generateBtn.disabled = false;
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        generateBtn.addEventListener('click', generateIcons);
+        downloadAllBtn.addEventListener('click', downloadAllIcons);
+        
+        function generateIcons() {
+            if (!originalImage) return;
+            
+            generatedIcons = [];
+            iconsGrid.innerHTML = '';
+            
+            iconSizes.forEach(iconConfig => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                canvas.width = iconConfig.size;
+                canvas.height = iconConfig.size;
+                
+                // Draw the image scaled to fit the canvas
+                ctx.drawImage(originalImage, 0, 0, iconConfig.size, iconConfig.size);
+                
+                // Convert to blob
+                canvas.toBlob((blob) => {
+                    const iconData = {
+                        name: iconConfig.name,
+                        size: iconConfig.size,
+                        type: iconConfig.type,
+                        blob: blob,
+                        url: URL.createObjectURL(blob)
+                    };
+                    
+                    generatedIcons.push(iconData);
+                    
+                    // Create icon item in grid
+                    const iconItem = document.createElement('div');
+                    iconItem.className = 'icon-item';
+                    iconItem.innerHTML = `
+                        <img src="${iconData.url}" alt="${iconData.name}">
+                        <div class="size">${iconData.size}x${iconData.size}</div>
+                        <button class="download-btn" onclick="downloadIcon('${iconData.name}')">Download</button>
+                    `;
+                    
+                    iconsGrid.appendChild(iconItem);
+                    
+                    // Show container when first icon is generated
+                    if (generatedIcons.length === 1) {
+                        iconsContainer.style.display = 'block';
+                    }
+                }, 'image/png');
+            });
+        }
+        
+        function downloadIcon(name) {
+            const icon = generatedIcons.find(i => i.name === name);
+            if (icon) {
+                const a = document.createElement('a');
+                a.href = icon.url;
+                a.download = icon.name;
+                a.click();
+            }
+        }
+        
+        async function downloadAllIcons() {
+            if (typeof JSZip === 'undefined') {
+                // Fallback: download icons individually
+                generatedIcons.forEach(icon => {
+                    setTimeout(() => downloadIcon(icon.name), 100);
+                });
+                return;
+            }
+            
+            const zip = new JSZip();
+            
+            for (const icon of generatedIcons) {
+                zip.file(icon.name, icon.blob);
+            }
+            
+            const zipBlob = await zip.generateAsync({type: 'blob'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(zipBlob);
+            a.download = 'pwa-icons.zip';
+            a.click();
+        }
+        
+        // Make downloadIcon available globally
+        window.downloadIcon = downloadIcon;
+    </script>
+    
+    <!-- Optional: Include JSZip for ZIP download functionality -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</body>
+</html>

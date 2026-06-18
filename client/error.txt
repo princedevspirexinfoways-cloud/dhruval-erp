@@ -1,0 +1,149 @@
+ pnpm error
+
+> client@0.1.0 error /Users/rajat/Downloads/erp/client
+> npx tsc --noEmit --skipLibCheck
+
+npm warn Unknown env config "verify-deps-before-run". This will stop working in the next major version of npm.
+npm warn Unknown env config "_jsr-registry". This will stop working in the next major version of npm.
+src/app/inventory/movements/[id]/page.tsx:55:30 - error TS2339: Property 'movementNumber' does not exist on type 'StockMovement'.
+
+55     movementNumber: movement.movementNumber || '',
+                                ~~~~~~~~~~~~~~
+
+src/app/inventory/movements/[id]/page.tsx:56:28 - error TS2339: Property 'movementType' does not exist on type 'StockMovement'.
+
+56     movementType: movement.movementType || 'inward',
+                              ~~~~~~~~~~~~
+
+src/app/inventory/movements/[id]/page.tsx:57:25 - error TS2339: Property 'createdAt' does not exist on type 'StockMovement'.
+
+57     createdAt: movement.createdAt || new Date().toISOString(),
+                           ~~~~~~~~~
+
+src/app/inventory/movements/[id]/page.tsx:202:11 - error TS2322: Type 'StockMovement | { movementNumber: any; movementType: any; createdAt: any; itemId: InventoryItem | undefined; _id: string; type: "in" | "out" | "adjustment"; ... 4 more ...; recordedBy: string; }' is not assignable to type 'StockMovement'.
+  Type 'StockMovement' is missing the following properties from type 'StockMovement': movementNumber, movementType, createdAt
+
+202           movement={movementWithItem || movement}
+              ~~~~~~~~
+
+  src/components/inventory/movements/details/MovementDetailsHeader.tsx:10:3
+    10   movement: StockMovement
+         ~~~~~~~~
+    The expected type comes from property 'movement' which is declared here on type 'IntrinsicAttributes & MovementDetailsHeaderProps'
+
+src/app/inventory/movements/[id]/page.tsx:210:11 - error TS2322: Type 'StockMovement | { movementNumber: any; movementType: any; createdAt: any; itemId: InventoryItem | undefined; _id: string; type: "in" | "out" | "adjustment"; ... 4 more ...; recordedBy: string; }' is not assignable to type 'StockMovement'.
+  Type 'StockMovement' is missing the following properties from type 'StockMovement': movementNumber, movementType, createdAt
+
+210           movement={movementWithItem || movement}
+              ~~~~~~~~
+
+  src/components/inventory/movements/details/MovementOverviewCard.tsx:9:3
+    9   movement: StockMovement
+        ~~~~~~~~
+    The expected type comes from property 'movement' which is declared here on type 'IntrinsicAttributes & MovementOverviewCardProps'
+
+src/app/inventory/movements/[id]/page.tsx:224:11 - error TS2322: Type 'StockMovement | { movementNumber: any; movementType: any; createdAt: any; itemId: InventoryItem | undefined; _id: string; type: "in" | "out" | "adjustment"; ... 4 more ...; recordedBy: string; }' is not assignable to type 'StockMovement'.
+  Type 'StockMovement' is missing the following properties from type 'StockMovement': movementNumber, movementType, createdAt
+
+224           movement={movementWithItem || movement}
+              ~~~~~~~~
+
+  src/components/inventory/movements/details/MovementItemInfo.tsx:8:3
+    8   movement: StockMovement
+        ~~~~~~~~
+    The expected type comes from property 'movement' which is declared here on type 'IntrinsicAttributes & MovementItemInfoProps'
+
+src/app/inventory/movements/[id]/page.tsx:230:11 - error TS2322: Type 'StockMovement | { movementNumber: any; movementType: any; createdAt: any; itemId: InventoryItem | undefined; _id: string; type: "in" | "out" | "adjustment"; ... 4 more ...; recordedBy: string; }' is not assignable to type 'StockMovement'.
+  Type 'StockMovement' is missing the following properties from type 'StockMovement': movementNumber, movementType, createdAt
+
+230           movement={movementWithItem || movement}
+              ~~~~~~~~
+
+  src/components/inventory/movements/details/MovementLocationInfo.tsx:9:3
+    9   movement: StockMovement
+        ~~~~~~~~
+    The expected type comes from property 'movement' which is declared here on type 'IntrinsicAttributes & MovementLocationInfoProps'
+
+src/app/inventory/movements/[id]/page.tsx:236:11 - error TS2322: Type 'StockMovement | { movementNumber: any; movementType: any; createdAt: any; itemId: InventoryItem | undefined; _id: string; type: "in" | "out" | "adjustment"; ... 4 more ...; recordedBy: string; }' is not assignable to type 'StockMovement'.
+  Type 'StockMovement' is missing the following properties from type 'StockMovement': movementNumber, movementType, createdAt
+
+236           movement={movementWithItem || movement}
+              ~~~~~~~~
+
+  src/components/inventory/movements/details/MovementReferenceInfo.tsx:9:3
+    9   movement: StockMovement
+        ~~~~~~~~
+    The expected type comes from property 'movement' which is declared here on type 'IntrinsicAttributes & MovementReferenceInfoProps'
+
+src/app/inventory/movements/[id]/page.tsx:242:11 - error TS2322: Type 'StockMovement | { movementNumber: any; movementType: any; createdAt: any; itemId: InventoryItem | undefined; _id: string; type: "in" | "out" | "adjustment"; ... 4 more ...; recordedBy: string; }' is not assignable to type 'StockMovement'.
+  Type 'StockMovement' is missing the following properties from type 'StockMovement': movementNumber, movementType, createdAt
+
+242           movement={movementWithItem || movement}
+              ~~~~~~~~
+
+  src/components/inventory/movements/details/MovementApprovalInfo.tsx:10:3
+    10   movement: StockMovement
+         ~~~~~~~~
+    The expected type comes from property 'movement' which is declared here on type 'IntrinsicAttributes & MovementApprovalInfoProps'
+
+src/app/inventory/movements/[id]/page.tsx:248:11 - error TS2322: Type 'StockMovement | { movementNumber: any; movementType: any; createdAt: any; itemId: InventoryItem | undefined; _id: string; type: "in" | "out" | "adjustment"; ... 4 more ...; recordedBy: string; }' is not assignable to type 'StockMovement'.
+  Type 'StockMovement' is missing the following properties from type 'StockMovement': movementNumber, movementType, createdAt
+
+248           movement={movementWithItem || movement}
+              ~~~~~~~~
+
+  src/components/inventory/movements/details/MovementNotes.tsx:8:3
+    8   movement: StockMovement
+        ~~~~~~~~
+    The expected type comes from property 'movement' which is declared here on type 'IntrinsicAttributes & MovementNotesProps'
+
+src/app/inventory/movements/[id]/page.tsx:254:11 - error TS2322: Type 'StockMovement | { movementNumber: any; movementType: any; createdAt: any; itemId: InventoryItem | undefined; _id: string; type: "in" | "out" | "adjustment"; ... 4 more ...; recordedBy: string; }' is not assignable to type 'StockMovement'.
+  Type 'StockMovement' is missing the following properties from type 'StockMovement': movementNumber, movementType, createdAt
+
+254           movement={movementWithItem || movement}
+              ~~~~~~~~
+
+  src/components/inventory/movements/details/MovementAuditInfo.tsx:9:3
+    9   movement: StockMovement
+        ~~~~~~~~
+    The expected type comes from property 'movement' which is declared here on type 'IntrinsicAttributes & MovementAuditInfoProps'
+
+src/app/inventory/movements/[id]/page.tsx:275:40 - error TS2339: Property 'movementNumber' does not exist on type 'StockMovement'.
+
+275               movementNumber: movement.movementNumber || '',
+                                           ~~~~~~~~~~~~~~
+
+src/app/inventory/movements/[id]/page.tsx:276:38 - error TS2339: Property 'movementType' does not exist on type 'StockMovement'.
+
+276               movementType: movement.movementType || 'inward',
+                                         ~~~~~~~~~~~~
+
+src/app/inventory/movements/[id]/page.tsx:277:35 - error TS2339: Property 'createdAt' does not exist on type 'StockMovement'.
+
+277               createdAt: movement.createdAt || new Date().toISOString()
+                                      ~~~~~~~~~
+
+src/components/inventory/InventoryList.tsx:150:28 - error TS2722: Cannot invoke an object which is possibly 'undefined'.
+
+150             onClick={() => onViewItem(item)}
+                               ~~~~~~~~~~
+
+src/components/inventory/InventoryList.tsx:269:11 - error TS2322: Type '((page: number) => void) | undefined' is not assignable to type '(page: number) => void'.
+  Type 'undefined' is not assignable to type '(page: number) => void'.
+
+269           onPageChange={onPageChange}
+              ~~~~~~~~~~~~
+
+  src/components/inventory/InventoryPagination.tsx:13:3
+    13   onPageChange: (page: number) => void
+         ~~~~~~~~~~~~
+    The expected type comes from property 'onPageChange' which is declared here on type 'IntrinsicAttributes & InventoryPaginationProps'
+
+
+Found 16 errors in 2 files.
+
+Errors  Files
+    14  src/app/inventory/movements/[id]/page.tsx:55
+     2  src/components/inventory/InventoryList.tsx:150
+ ELIFECYCLE  Command failed with exit code 2.
+rajat@Mac client % 

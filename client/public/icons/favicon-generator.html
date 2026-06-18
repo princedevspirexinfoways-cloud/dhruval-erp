@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Favicon Generator - ERP System</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .logo-preview {
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .favicon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .favicon-item {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+        }
+        .favicon-item canvas {
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+        .size-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #495057;
+        }
+        button {
+            background: #0ea5e9;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            margin: 5px;
+        }
+        button:hover { background: #0284c7; }
+        .upload-area {
+            border: 2px dashed #0ea5e9;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            margin: 20px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .upload-area:hover {
+            background: #f0f9ff;
+            border-color: #0284c7;
+        }
+        .upload-area.dragover {
+            background: #e0f2fe;
+            border-color: #0369a1;
+        }
+        #fileInput {
+            display: none;
+        }
+        .instructions {
+            background: #e0f2fe;
+            border: 1px solid #0ea5e9;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .instructions h3 {
+            color: #0369a1;
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 ERP System Favicon Generator</h1>
+        <p>Upload your logo to generate all required favicon sizes for PWA and cross-platform support.</p>
+
+        <div class="instructions">
+            <h3>📋 Instructions:</h3>
+            <ol>
+                <li>Upload a square logo image (PNG/JPG, minimum 512x512px recommended)</li>
+                <li>Preview will show all generated favicon sizes</li>
+                <li>Click "Download All" to get a ZIP file with all favicons</li>
+                <li>Replace the files in your <code>/public/icons/</code> folder</li>
+            </ol>
+        </div>
+
+        <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+            <div>
+                <h3>📁 Click to Upload Logo</h3>
+                <p>Or drag and drop your logo file here</p>
+                <p><small>Supports PNG, JPG, SVG (Square format recommended)</small></p>
+            </div>
+        </div>
+        
+        <input type="file" id="fileInput" accept="image/*">
+
+        <div id="logoPreview" class="logo-preview" style="display: none;">
+            <h3>Original Logo:</h3>
+            <img id="originalLogo" style="max-width: 200px; max-height: 200px; border-radius: 8px;">
+        </div>
+
+        <div id="faviconGrid" class="favicon-grid" style="display: none;"></div>
+
+        <div id="downloadSection" style="display: none; text-align: center; margin: 30px 0;">
+            <button onclick="downloadAllFavicons()">📦 Download All Favicons</button>
+            <button onclick="generateICO()">🔧 Generate .ICO File</button>
+            <p><small>All favicons will be downloaded as individual PNG files + ICO format</small></p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script>
+        const faviconSizes = [
+            { size: 16, name: 'favicon-16x16.png', desc: 'Browser Tab' },
+            { size: 32, name: 'favicon-32x32.png', desc: 'Browser Tab' },
+            { size: 48, name: 'favicon-48x48.png', desc: 'Windows' },
+            { size: 57, name: 'apple-touch-icon-57x57.png', desc: 'iOS' },
+            { size: 60, name: 'apple-touch-icon-60x60.png', desc: 'iOS' },
+            { size: 72, name: 'apple-touch-icon-72x72.png', desc: 'iOS' },
+            { size: 76, name: 'apple-touch-icon-76x76.png', desc: 'iOS' },
+            { size: 96, name: 'icon-96x96.png', desc: 'Android' },
+            { size: 114, name: 'apple-touch-icon-114x114.png', desc: 'iOS' },
+            { size: 120, name: 'apple-touch-icon-120x120.png', desc: 'iOS' },
+            { size: 128, name: 'icon-128x128.png', desc: 'Chrome' },
+            { size: 144, name: 'apple-touch-icon-144x144.png', desc: 'iOS/Windows' },
+            { size: 152, name: 'apple-touch-icon-152x152.png', desc: 'iOS' },
+            { size: 180, name: 'apple-touch-icon-180x180.png', desc: 'iOS' },
+            { size: 192, name: 'icon-192x192.png', desc: 'Android' },
+            { size: 384, name: 'icon-384x384.png', desc: 'Android' },
+            { size: 512, name: 'icon-512x512.png', desc: 'PWA' }
+        ];
+
+        let originalImage = null;
+        let generatedCanvases = [];
+
+        // File upload handling
+        const fileInput = document.getElementById('fileInput');
+        const uploadArea = document.querySelector('.upload-area');
+
+        fileInput.addEventListener('change', handleFileSelect);
+        uploadArea.addEventListener('dragover', handleDragOver);
+        uploadArea.addEventListener('drop', handleDrop);
+        uploadArea.addEventListener('dragleave', handleDragLeave);
+
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                loadImage(file);
+            }
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                loadImage(file);
+            }
+        }
+
+        function handleDragLeave(e) {
+            uploadArea.classList.remove('dragover');
+        }
+
+        function loadImage(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    originalImage = img;
+                    showPreview(e.target.result);
+                    generateFavicons();
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function showPreview(src) {
+            const preview = document.getElementById('logoPreview');
+            const originalLogo = document.getElementById('originalLogo');
+            originalLogo.src = src;
+            preview.style.display = 'block';
+        }
+
+        function generateFavicons() {
+            const grid = document.getElementById('faviconGrid');
+            const downloadSection = document.getElementById('downloadSection');
+            
+            grid.innerHTML = '';
+            generatedCanvases = [];
+
+            faviconSizes.forEach(({ size, name, desc }) => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                canvas.width = size;
+                canvas.height = size;
+                
+                // Draw image with proper scaling and centering
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, size, size);
+                
+                const scale = Math.min(size / originalImage.width, size / originalImage.height);
+                const scaledWidth = originalImage.width * scale;
+                const scaledHeight = originalImage.height * scale;
+                const x = (size - scaledWidth) / 2;
+                const y = (size - scaledHeight) / 2;
+                
+                ctx.drawImage(originalImage, x, y, scaledWidth, scaledHeight);
+                
+                // Create grid item
+                const item = document.createElement('div');
+                item.className = 'favicon-item';
+                item.innerHTML = `
+                    <canvas width="${size}" height="${size}"></canvas>
+                    <div class="size-label">${size}x${size}</div>
+                    <div style="font-size: 10px; color: #6c757d;">${desc}</div>
+                `;
+                
+                const itemCanvas = item.querySelector('canvas');
+                const itemCtx = itemCanvas.getContext('2d');
+                itemCtx.drawImage(canvas, 0, 0);
+                
+                grid.appendChild(item);
+                generatedCanvases.push({ canvas, name, size });
+            });
+
+            grid.style.display = 'grid';
+            downloadSection.style.display = 'block';
+        }
+
+        function downloadAllFavicons() {
+            const zip = new JSZip();
+            const promises = [];
+
+            generatedCanvases.forEach(({ canvas, name }) => {
+                promises.push(
+                    new Promise(resolve => {
+                        canvas.toBlob(blob => {
+                            zip.file(name, blob);
+                            resolve();
+                        }, 'image/png');
+                    })
+                );
+            });
+
+            Promise.all(promises).then(() => {
+                zip.generateAsync({ type: 'blob' }).then(content => {
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(content);
+                    link.download = 'erp-system-favicons.zip';
+                    link.click();
+                });
+            });
+        }
+
+        function generateICO() {
+            // For ICO generation, we'll use the 16x16, 32x32, and 48x48 sizes
+            const icoSizes = [16, 32, 48];
+            const icoCanvases = generatedCanvases.filter(({ size }) => icoSizes.includes(size));
+            
+            if (icoCanvases.length > 0) {
+                // For simplicity, we'll download the 32x32 as favicon.ico
+                const canvas32 = icoCanvases.find(({ size }) => size === 32)?.canvas;
+                if (canvas32) {
+                    canvas32.toBlob(blob => {
+                        const link = document.createElement('a');
+                        link.href = URL.createObjectURL(blob);
+                        link.download = 'favicon.ico';
+                        link.click();
+                    }, 'image/png');
+                }
+            }
+        }
+    </script>
+</body>
+</html>
