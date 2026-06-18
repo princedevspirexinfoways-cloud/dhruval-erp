@@ -156,19 +156,16 @@ export default function RootLayout({
       document.documentElement.classList.add('dark');
       document.documentElement.setAttribute('data-theme', 'dark');
       document.documentElement.style.colorScheme = 'dark';
-      document.body.classList.add('dark');
       console.log('Applied saved dark theme');
     } else if (savedTheme === 'light') {
       document.documentElement.classList.remove('dark');
       document.documentElement.setAttribute('data-theme', 'light');
       document.documentElement.style.colorScheme = 'light';
-      document.body.classList.remove('dark');
       console.log('Applied saved light theme');
     } else {
       // No saved preference - default to light theme (don't auto-detect system)
       document.documentElement.classList.remove('dark');
       document.documentElement.setAttribute('data-theme', 'light');
-      document.body.classList.remove('dark');
       localStorage.setItem('theme', 'light');
       console.log('No saved theme, defaulting to light');
     }
@@ -176,7 +173,6 @@ export default function RootLayout({
     // Fallback to light theme
     document.documentElement.classList.remove('dark');
     document.documentElement.setAttribute('data-theme', 'light');
-    document.body.classList.remove('dark');
     localStorage.setItem('theme', 'light');
     console.log('Error in theme script, defaulting to light');
   }

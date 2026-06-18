@@ -124,6 +124,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // Create CASL ability based on user permissions
   const ability = defineAbilityFor(user, permissions)
 
+  // Block rendering of protected pages until auth/company state has been
+  // hydrated from localStorage, otherwise RTK Query hooks on mount fire
+  // before currentCompanyId is available and the API rejects them with
+  // "Company ID is required".
+  const isPublicRoute = pathname ? publicRoutes.includes(pathname) : false
+  if (isClient && !authInitialized && !isPublicRoute) {
+    return <AppLoader />
+  }
+
   return (
     <AbilityContext.Provider value={ability}>
       {children}
