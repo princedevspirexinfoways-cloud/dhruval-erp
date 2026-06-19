@@ -35,7 +35,7 @@ interface WarehouseFormProps {
 
 interface Company {
   _id: string
-  name: string
+  companyName: string
   companyCode: string
 }
 
@@ -294,7 +294,7 @@ export function WarehouseForm({ warehouse, companyId, onClose, onSubmit }: Wareh
           </div>
 
           {/* Company ID Validation */}
-          {(!selectedCompanyId || companyId === 'all') && (
+          {!selectedCompanyId && (
             <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
               <div className="flex items-center gap-2 text-red-800">
                 <AlertCircle className="w-5 h-5" />
@@ -323,7 +323,7 @@ export function WarehouseForm({ warehouse, companyId, onClose, onSubmit }: Wareh
                 >
                   <span>
                     {selectedCompanyId ?
-                      companies.find(c => c._id === selectedCompanyId)?.name || 'Select Company' :
+                      companies.find(c => c._id === selectedCompanyId)?.companyName || 'Select Company' :
                       'Select Company'
                     }
                   </span>
@@ -348,7 +348,7 @@ export function WarehouseForm({ warehouse, companyId, onClose, onSubmit }: Wareh
                           }}
                           className="w-full text-left p-3 hover:bg-gray-50 flex items-center justify-between"
                         >
-                          <span>{company.name} ({company.companyCode})</span>
+                          <span>{company.companyName} ({company.companyCode})</span>
                           {selectedCompanyId === company._id && (
                             <Check className="w-5 h-5 text-blue-600" />
                           )}

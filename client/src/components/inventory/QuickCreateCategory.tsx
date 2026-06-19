@@ -16,19 +16,22 @@ interface QuickCreateCategoryProps {
     open: boolean
     onOpenChange: (open: boolean) => void
     onCategoryCreated?: (categoryId: string) => void
+    companyId?: string
 }
 
-export function QuickCreateCategory({ open, onOpenChange, onCategoryCreated }: QuickCreateCategoryProps) {
+export function QuickCreateCategory({ open, onOpenChange, onCategoryCreated, companyId: propCompanyId }: QuickCreateCategoryProps) {
     const [name, setName] = useState('')
     const [description, setDescription] = useState('')
     const [createCategory, { isLoading }] = useCreateCategoryMutation()
     const { toast } = useToast()
     const theme = useSelector((state: RootState) => state.ui.theme)
-    const companyId = useSelector((state: RootState) =>
+    const reduxCompanyId = useSelector((state: RootState) =>
         state.auth.currentCompanyId ||
         state.auth.user?.companyAccess?.[0]?.companyId ||
         state.auth.user?.currentCompanyId
     )
+    
+    const companyId = propCompanyId || reduxCompanyId
 
     // Refetch categories after creation
     const { refetch: refetchCategories } = useGetCategoriesQuery(

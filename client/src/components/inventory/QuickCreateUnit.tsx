@@ -16,20 +16,23 @@ interface QuickCreateUnitProps {
     open: boolean
     onOpenChange: (open: boolean) => void
     onUnitCreated?: (unitId: string) => void
+    companyId?: string
 }
 
-export function QuickCreateUnit({ open, onOpenChange, onUnitCreated }: QuickCreateUnitProps) {
+export function QuickCreateUnit({ open, onOpenChange, onUnitCreated, companyId: propCompanyId }: QuickCreateUnitProps) {
     const [name, setName] = useState('')
     const [symbol, setSymbol] = useState('')
     const [description, setDescription] = useState('')
     const [createUnit, { isLoading }] = useCreateUnitMutation()
     const { toast } = useToast()
     const theme = useSelector((state: RootState) => state.ui.theme)
-    const companyId = useSelector((state: RootState) =>
+    const reduxCompanyId = useSelector((state: RootState) =>
         state.auth.currentCompanyId ||
         state.auth.user?.companyAccess?.[0]?.companyId ||
         state.auth.user?.currentCompanyId
     )
+    
+    const companyId = propCompanyId || reduxCompanyId
 
     // Refetch units after creation
     const { refetch: refetchUnits } = useGetUnitsQuery(

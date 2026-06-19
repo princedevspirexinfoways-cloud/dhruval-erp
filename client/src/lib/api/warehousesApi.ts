@@ -150,6 +150,7 @@ export interface WarehouseLocation {
 
 // API Request Types
 export interface CreateWarehouseRequest {
+  companyId: string
   warehouseCode: string
   warehouseName: string
   displayName?: string

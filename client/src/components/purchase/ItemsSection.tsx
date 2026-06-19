@@ -662,17 +662,20 @@ function ItemRow({
         open={openDialogs.category}
         onOpenChange={(open) => setOpenDialogs(prev => ({ ...prev, category: open }))}
         onCategoryCreated={(categoryId) => handleCategoryCreated(categoryId)}
+        companyId={selectedCompanyId}
       />
       <QuickCreateSubcategory
         open={openDialogs.subcategory}
         onOpenChange={(open) => setOpenDialogs(prev => ({ ...prev, subcategory: open }))}
         onSubcategoryCreated={(subcategoryId) => handleSubcategoryCreated(subcategoryId)}
         categoryId={item.categoryId}
+        companyId={selectedCompanyId}
       />
       <QuickCreateUnit
         open={openDialogs.unit}
         onOpenChange={(open) => setOpenDialogs(prev => ({ ...prev, unit: open }))}
         onUnitCreated={(unitId) => handleUnitCreated(unitId)}
+        companyId={selectedCompanyId}
       />
     </div>
   )

@@ -19,13 +19,15 @@ interface QuickCreateSubcategoryProps {
     onOpenChange: (open: boolean) => void
     onSubcategoryCreated?: (subcategoryId: string) => void
     categoryId?: string // Pre-select category if provided
+    companyId?: string
 }
 
 export function QuickCreateSubcategory({ 
     open, 
     onOpenChange, 
     onSubcategoryCreated,
-    categoryId: initialCategoryId 
+    categoryId: initialCategoryId,
+    companyId: propCompanyId
 }: QuickCreateSubcategoryProps) {
     const [name, setName] = useState('')
     const [description, setDescription] = useState('')
@@ -33,11 +35,13 @@ export function QuickCreateSubcategory({
     const [createSubcategory, { isLoading }] = useCreateSubcategoryMutation()
     const { toast } = useToast()
     const theme = useSelector((state: RootState) => state.ui.theme)
-    const companyId = useSelector((state: RootState) =>
+    const reduxCompanyId = useSelector((state: RootState) =>
         state.auth.currentCompanyId ||
         state.auth.user?.companyAccess?.[0]?.companyId ||
         state.auth.user?.currentCompanyId
     )
+    
+    const companyId = propCompanyId || reduxCompanyId
 
     // Fetch categories
     const { data: categoriesData } = useGetCategoriesQuery(

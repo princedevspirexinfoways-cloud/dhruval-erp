@@ -88,7 +88,12 @@ export class InventoryService extends BaseService<IInventoryItem> {
           reorderLevel: itemData.stock?.reorderLevel || (itemData as any).reorderPoint || 0,
           maxStockLevel: itemData.stock?.maxStockLevel || 0,
           unit: unit,
-          valuationMethod: itemData.stock?.valuationMethod || (itemData as any).stockingMethod || 'FIFO',
+          valuationMethod: ((method) => {
+            const m = String(method).toLowerCase();
+            if (m === 'lifo') return 'LIFO';
+            if (m === 'average' || m === 'weighted average') return 'Weighted Average';
+            return 'FIFO';
+          })(itemData.stock?.valuationMethod || (itemData as any).stockingMethod || 'FIFO'),
           averageCost: itemData.stock?.averageCost || itemData.pricing?.costPrice || 0,
           totalValue: itemData.stock?.totalValue || 0,
           minStockLevel: itemData.stock?.minStockLevel || 0,

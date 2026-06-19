@@ -166,8 +166,9 @@ export function AgentFormModal({ isOpen, onClose, onSuccess, agent }: AgentFormM
         }
 
         // Phone validation
-        if (formData.primaryPhone && !/^[6-9]\d{9}$/.test(formData.primaryPhone.replace(/\D/g, ''))) {
-            newErrors.primaryPhone = 'Invalid phone number format'
+        const phoneDigits = formData.primaryPhone.replace(/\D/g, '')
+        if (formData.primaryPhone && (phoneDigits.length < 10 || phoneDigits.length > 15)) {
+            newErrors.primaryPhone = 'Phone number must be between 10 and 15 digits'
         }
 
         setErrors(newErrors)
